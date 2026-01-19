@@ -1,0 +1,453 @@
+/*
+ * OddsStream - Main Application Styles
+ * Real-time trading interface for Conway Testnet
+ */
+
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+}
+
+/* Header */
+.app-header {
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--spacing-md) var(--spacing-lg);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(8px);
+}
+
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--color-text-primary);
+}
+
+.logo-icon {
+  color: var(--color-conway-primary);
+  font-size: 2rem;
+}
+
+.network-status {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid var(--color-conway-primary);
+  border-radius: 6px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #10b981;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.wallet-section {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.balance {
+  background: var(--color-bg-tertiary);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+
+.connect-button {
+  background: linear-gradient(135deg, var(--color-conway-primary), #8b5cf6);
+  color: white;
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.connect-button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Main Content */
+.app-main {
+  flex: 1;
+  padding: var(--spacing-lg);
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 300px 1fr 350px;
+  gap: var(--spacing-lg);
+  height: calc(100vh - 80px);
+}
+
+/* Left Sidebar - Markets List */
+.markets-sidebar {
+  background: var(--color-bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.create-market-btn {
+  background: var(--color-conway-primary);
+  color: white;
+  border: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.markets-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-sm);
+}
+
+.market-card {
+  background: var(--color-bg-tertiary);
+  border-radius: 8px;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+}
+
+.market-card:hover {
+  border-color: var(--color-conway-primary);
+  transform: translateX(4px);
+}
+
+.market-card.active {
+  border-color: var(--color-conway-primary);
+  background: rgba(124, 58, 237, 0.1);
+}
+
+.market-odds {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-sm);
+}
+
+.odds-yes, .odds-no {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 4px;
+}
+
+.odds-yes {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-bull);
+}
+
+.odds-no {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-bear);
+}
+
+/* Center - Trading View */
+.trading-view {
+  background: var(--color-bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.trading-header {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.market-title {
+  font-size: 1.25rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.market-description {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.order-book {
+  flex: 1;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.order-book-section {
+  background: var(--color-bg-tertiary);
+  border-radius: 8px;
+  padding: var(--spacing-md);
+  flex: 1;
+}
+
+.section-title {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-secondary);
+}
+
+.order-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+
+/* Right Sidebar - Order Form & Batched Orders */
+.order-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.order-form {
+  background: var(--color-bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  padding: var(--spacing-md);
+}
+
+.form-title {
+  font-size: 1rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.amount-input {
+  width: 100%;
+  padding: var(--spacing-md);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  text-align: right;
+}
+
+.amount-input:focus {
+  outline: none;
+  border-color: var(--color-conway-primary);
+}
+
+.amount-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-sm);
+  margin: var(--spacing-md) 0;
+}
+
+.amount-btn {
+  padding: var(--spacing-sm);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.amount-btn:hover {
+  background: var(--color-conway-primary);
+  color: white;
+}
+
+.trade-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.buy-btn, .sell-btn {
+  flex: 1;
+  padding: var(--spacing-md);
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.buy-btn {
+  background: var(--color-bull);
+  color: white;
+}
+
+.sell-btn {
+  background: var(--color-bear);
+  color: white;
+}
+
+.buy-btn:hover, .sell-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Batched Orders Panel */
+.batch-panel {
+  background: var(--color-bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  padding: var(--spacing-md);
+  flex: 1;
+}
+
+.batch-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.batch-items {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.batch-item {
+  background: var(--color-bg-tertiary);
+  border-radius: 6px;
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.batch-item-remove {
+  color: var(--color-bear);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-xs);
+}
+
+.submit-batch-btn {
+  width: 100%;
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, var(--color-conway-primary), #8b5cf6);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: var(--spacing-md);
+  transition: all var(--transition-normal);
+}
+
+.submit-batch-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Real-time Updates */
+.realtime-update {
+  position: fixed;
+  bottom: var(--spacing-lg);
+  right: var(--spacing-lg);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: var(--spacing-md);
+  max-width: 300px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .dashboard {
+    grid-template-columns: 250px 1fr;
+  }
+  
+  .order-sidebar {
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr 1fr;
+    display: grid;
+    gap: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  
+  .markets-sidebar {
+    height: 300px;
+  }
+  
+  .order-sidebar {
+    grid-template-columns: 1fr;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+}

@@ -1,0 +1,15 @@
+[project]
+name = "oddsstream-sdk"
+version = "0.1.0"
+description = "OddsStream is a next-generation prediction market platform built on the Linera blockchain. It leverages Linera's unique microchain architecture to deliver instant market finality, predictable costs, and a seamless real-time experience—unlocking new possibilities for live event trading and AI agent participation."
+authors = [
+    {name = "Gaurav Karakoti",email = "karakotigaurav12@gmail.com"}
+]
+requires-python = ">=3.14"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

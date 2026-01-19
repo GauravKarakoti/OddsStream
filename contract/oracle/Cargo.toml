@@ -1,0 +1,52 @@
+[package]
+name = "oddsstream-oracle"
+version = "0.1.0"
+edition = "2021"
+authors = ["OddsStream Team"]
+description = "OddsStream Oracle Adjudicator - Hybrid TEE/Committee oracle system"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/oddsstream/linera-contracts"
+
+[dependencies]
+linera-sdk = { git = "https://github.com/linera-io/linera-protocol", branch = "testnet_conway", features = ["async"] }
+async-trait = "0.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0.18"
+bls12-381 = { version = "0.7", features = ["pairings"] }  # For BLS signatures
+hex = "0.4"
+base64 = "0.22.1"
+log = "0.4"
+
+# For TEE integration (Intel SGX/AMD SEV)
+[dependencies.sgx-isa]
+version = "0.4.1"
+optional = true
+
+[dependencies.reqwest]
+version = "0.13.1"
+features = ["json", "stream"]
+optional = true
+
+[dev-dependencies]
+tokio = { version = "1.0", features = ["full"] }
+test-log = "0.2"
+
+[features]
+default = []
+tee = ["sgx-isa", "reqwest"]
+test = ["linera-sdk/test", "tee"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"  # Balance of speed and size
+panic = "abort"
+incremental = false
+
+[profile.dev]
+opt-level = 0
+debug = true
