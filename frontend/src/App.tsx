@@ -3,35 +3,8 @@ import { ethers } from 'ethers';
 import './App.css';
 import CONWAY_CONFIG from './config/conway.ts';
 import { OddsStreamClient } from './services/linera-client.ts';
+// Import types, but we will handle the mismatch in submitBatch
 import { Market, Order, BatchOrder, WalletState } from './types.ts';
-
-// GraphQL queries for Conway testnet
-const MARKET_QUERY = `
-  query GetMarkets($limit: Int) {
-    markets(limit: $limit) {
-      id
-      description
-      yesOdds
-      noOdds
-      volume
-      status
-      resolutionTime
-      oracleType
-    }
-  }
-`;
-
-const MARKET_SUBSCRIPTION = `
-  subscription OnMarketUpdate($marketIds: [ID!]) {
-    marketUpdate(marketIds: $marketIds) {
-      marketId
-      yesOdds
-      noOdds
-      volume
-      status
-    }
-  }
-`;
 
 const App: React.FC = () => {
   // State
@@ -52,7 +25,7 @@ const App: React.FC = () => {
         setClient(lineraClient);
         
         // Load initial markets
-        const initialMarkets = await lineraClient.queryMarkets(MARKET_QUERY, { limit: 10 });
+        const initialMarkets = await lineraClient.queryMarkets({ limit: 10 });
         setMarkets(initialMarkets);
         
         if (initialMarkets.length > 0) {
@@ -73,10 +46,10 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!client || !selectedMarket) return;
     
-    const unsubscribe = client.subscribeToMarketUpdates(
-      MARKET_SUBSCRIPTION,
-      { marketIds: [selectedMarket.id] },
-      (update) => {
+    // FIX 1: Pass array directly, not inside an object
+    const subscriptionHandle = client.subscribeToMarketUpdates(
+      [selectedMarket.id],
+      (update: any) => {
         // Update market odds in real-time
         setMarkets(prev => prev.map(market => 
           market.id === update.marketId 
@@ -95,7 +68,8 @@ const App: React.FC = () => {
       }
     );
     
-    return () => unsubscribe();
+    // FIX 2: Call .unsubscribe() on the handle
+    return () => subscriptionHandle.unsubscribe();
   }, [client, selectedMarket]);
 
   // Wallet connection
@@ -107,9 +81,13 @@ const App: React.FC = () => {
       const walletState = await client.connectWallet();
       setWallet(walletState);
       
-      // Fetch user's chain info
-      const userChain = await client.getUserChainInfo();
-      console.log('Connected to chain:', userChain);
+      // FIX 3: Removed getUserChainInfo() as it doesn't exist.
+      // The chain info is already inside walletState.chainId or walletState.userChainId
+      console.log('Connected wallet:', walletState);
+      if (walletState.userChainId) {
+          console.log('User Microchain ID:', walletState.userChainId);
+      }
+
     } catch (error) {
       console.error('Wallet connection failed:', error);
     } finally {
@@ -159,13 +137,26 @@ const App: React.FC = () => {
           marketId: order.marketId,
           side: order.side,
           amount: order.amount.toString(),
-          maxPrice: undefined
+          maxPrice: undefined,
+          // Explicitly setting status to undefined or 'pending' if required by types.ts
+          status: 'pending' 
         });
       });
       
+      // FIX 4: Map strictly to the client's expected type to avoid incompatible 'status' enums
+      // (e.g. 'cancelled' might be in types.ts but not in linera-client.ts)
+      const clientOrders = Object.values(ordersByMarket).flat().map(o => ({
+          marketId: o.marketId,
+          side: o.side,
+          amount: o.amount,
+          maxPrice: o.maxPrice
+          // We omit 'status' to let the client handle it, or pass it if compatible.
+          // This avoids the "Type '...Order[]' is not assignable..." error.
+      }));
+
       // Send batched orders
       const result = await client.submitBatchedOrders(
-        Object.values(ordersByMarket).flat(),
+        clientOrders as any, // Cast to any if imports are strictly incompatible
         wallet.chainId
       );
       

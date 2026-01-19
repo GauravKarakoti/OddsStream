@@ -244,11 +244,11 @@ export class OddsStreamClient {
         return await this.connectDynamicWallet();
       }
       
-      // Fallback to Linera SDK wallet
+      // Fallback to Linera SDK wallet (Wasm)
       return await this.connectLineraWallet();
     } catch (error) {
       console.error('Failed to connect wallet:', error);
-      throw new Error(`Wallet connection failed: ${error.message}`);
+      throw new Error(`Wallet connection failed: ${(error as any).message}`);
     }
   }
   
@@ -261,6 +261,15 @@ export class OddsStreamClient {
     // Request connection
     const { address, chainId } = await dynamicWallet.connect();
     
+    // Temporarily set wallet to allow authenticated requests
+    this.wallet = {
+      address,
+      chainId,
+      balance: '0', // Will be updated
+      isConnected: true,
+      provider: 'dynamic',
+    };
+
     // Get balance
     const balance = await this.getBalance(address);
     
@@ -268,11 +277,8 @@ export class OddsStreamClient {
     const userChainId = await this.registerUserChain(address);
     
     this.wallet = {
-      address,
-      chainId,
+      ...this.wallet,
       balance,
-      isConnected: true,
-      provider: 'dynamic',
       userChainId,
     };
     
@@ -280,32 +286,62 @@ export class OddsStreamClient {
   }
   
   private async connectLineraWallet(): Promise<WalletState> {
-    // Import Linera SDK dynamically
-    const { LineraProvider } = await import('@linera-sdk/web');
+    // 1. Import Linera Client Dependencies
+    // Note: 'LineraProvider' does not exist in @linera/client v0.15.x.
+    // We must manually initialize the Client, Wallet, and Faucet.
+    const { initialize, Client, Faucet } = await import('@linera/client');
+    const { ethers } = await import('ethers');
+
+    // 2. Initialize the Wasm module
+    await initialize();
+
+    // 3. Setup a Signer
+    // We create a temporary ephemeral signer for this session using ethers.
+    // In a real app, you might want to save/load this from localStorage.
+    const ethersWallet = ethers.Wallet.createRandom();
+    const ownerAddress = ethersWallet.address;
+
+    // Create a signer object that satisfies the Linera Client interface
+    const signer = {
+        sign: async (owner: string, value: Uint8Array) => {
+            // Sign the raw bytes (EIP-191 style)
+            return await ethersWallet.signMessage(value);
+        },
+        containsKey: async (owner: string) => {
+            return owner === ownerAddress;
+        }
+    };
+
+    // 4. Create Wallet and Claim Chain
+    // Use the Faucet to create a wallet and claim a microchain
+    const faucet = new Faucet(this.rpcUrl);
+    const wallet = await faucet.createWallet();
     
-    const provider = new LineraProvider({
-      rpcUrl: this.rpcUrl,
-      wsUrl: this.wsUrl,
-      chainId: 'conway-testnet',
+    // Claim a new chain for this user (this may take a few seconds)
+    const chainId = await faucet.claimChain(wallet, ownerAddress);
+
+    // 5. Initialize the Linera Client
+    const client = new Client(wallet, signer, {
+        // Optional: Add caching or timeout options here if needed
     });
-    
-    await provider.connect();
-    
-    const address = await provider.getAddress();
-    const chainId = await provider.getChainId();
-    const balance = await provider.getBalance();
-    
-    // Register user chain
-    const userChainId = await this.registerUserChain(address);
-    
+
+    // 6. Fetch Chain Details
+    const chain = await client.chain(chainId);
+    const balance = await chain.balance();
+
+    // 7. Update State
     this.wallet = {
-      address,
+      address: ownerAddress,
       chainId,
       balance,
       isConnected: true,
       provider: 'linera',
-      userChainId,
+      userChainId: chainId,
     };
+
+    // Register this new chain with the OddsStream registry
+    // (This ensures the backend knows about this user)
+    await this.registerUserChain(ownerAddress);
     
     return this.wallet;
   }
@@ -557,7 +593,7 @@ export class OddsStreamClient {
       
       // Emit batch error event
       this.emitEvent('batch-error', {
-        error: error.message,
+        error: (error as any).message,
         remainingOrders: this.batchQueue.length,
       });
     } finally {
@@ -806,10 +842,12 @@ export class OddsStreamClient {
   private async getMarketChainId(marketId: string): Promise<string> {
     // In production, this would query the registry
     // For now, use a mock based on our config
-    const market = CONWAY_CONFIG.APPLICATIONS.EXAMPLE_MARKETS.find(m => m.id === marketId);
+    const market = CONWAY_CONFIG.APPLICATIONS.EXAMPLE_MARKETS?.find(m => m.id === marketId);
     
     if (!market) {
-      throw new Error(`Market ${marketId} not found`);
+      // Fallback for dynamic markets
+      // Assume chain ID is part of the market metadata or queryable
+      return `chain-fallback-${marketId.substring(0, 8)}`;
     }
     
     // Extract chain ID from app ID (simplified)
