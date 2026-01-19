@@ -1,8 +1,8 @@
 [workspace]
 members = [
-    "contracts/service",
-    "contracts/market", 
-    "contracts/oracle",
+    "contract/service",
+    "contract/market", 
+    "contract/oracle",
     "sdk/rust",
 ]
 resolver = "2"

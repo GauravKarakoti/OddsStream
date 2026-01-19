@@ -160,9 +160,9 @@ mkdir -p build/conway
 # -----------------------------------------------------------------------------
 print_step "Phase 1: Building Contracts"
 
-SERVICE_WASM=$(build_contract "oddsstream-service" "contracts/service")
-MARKET_WASM=$(build_contract "oddsstream-market" "contracts/market")
-ORACLE_WASM=$(build_contract "oddsstream-oracle" "contracts/oracle")
+SERVICE_WASM=$(build_contract "oddsstream-service" "contract/service")
+MARKET_WASM=$(build_contract "oddsstream-market" "contract/market")
+ORACLE_WASM=$(build_contract "oddsstream-oracle" "contract/oracle")
 
 # Copy wasm files to build directory
 cp "$SERVICE_WASM" build/conway/service.wasm

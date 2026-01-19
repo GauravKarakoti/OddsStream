@@ -104,7 +104,7 @@ export class LineraWrapper {
         const chain = await this.getChain();
         // You need the Application ID of your OddsStream contract here
         // For now, we assume it's passed or stored in config
-        const APP_ID = "YOUR_APP_ID_HERE"; 
+        const APP_ID = process.env.REACT_APP_APP_ID!; 
         
         const app = await chain.application(APP_ID);
         const response = await app.query(query);

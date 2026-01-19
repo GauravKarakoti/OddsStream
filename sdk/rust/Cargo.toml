@@ -8,7 +8,7 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/oddsstream/linera-sdk"
 
 [dependencies]
-linera-sdk = { git = "https://github.com/linera-io/linera-protocol", branch = "testnet_conway", features = ["client"] }
+linera-sdk = { git = "https://github.com/linera-io/linera-protocol", branch = "testnet_conway" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0.18"
