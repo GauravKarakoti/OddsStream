@@ -3,7 +3,7 @@
  * Handles all blockchain interactions with Conway Testnet
  */
 
-import CONWAY_CONFIG, { OracleType } from '../config/conway.ts';
+import LOCAL_CONFIG, { OracleType } from '../config/local.ts';
 
 // ============================================================================
 // Type Definitions (re-exported from types.ts)
@@ -224,7 +224,7 @@ export class OddsStreamClient {
   private batchQueue: BatchOrder[] = [];
   private batchTimer: NodeJS.Timeout | null = null;
 
-  constructor(config: typeof CONWAY_CONFIG) {
+  constructor(config: typeof LOCAL_CONFIG) {
     this.rpcUrl = config.RPC_URL;
     this.graphqlUrl = config.GRAPHQL_URL;
     this.wsUrl = config.WS_URL;
@@ -254,10 +254,10 @@ export class OddsStreamClient {
   
   private async connectDynamicWallet(): Promise<WalletState> {
     const dynamic = (window as any).dynamic;
-    
-    // Initialize Dynamic wallet with Conway config
-    const dynamicWallet = await dynamic.setWallet(CONWAY_CONFIG.WALLET.DYNAMIC_CONFIG);
-    
+
+    // Initialize Dynamic wallet with Local config
+    const dynamicWallet = await dynamic.setWallet(LOCAL_CONFIG.WALLET.DYNAMIC_CONFIG);
+
     // Request connection
     const { address, chainId } = await dynamicWallet.connect();
     
@@ -410,8 +410,8 @@ export class OddsStreamClient {
       GRAPHQL_QUERIES.GET_MARKETS,
       { filters }
     );
-    
-    this.cacheData(cacheKey, response.data.markets, CONWAY_CONFIG.PERFORMANCE.CACHE_TTL.MARKET_LIST);
+
+    this.cacheData(cacheKey, response.data.markets, LOCAL_CONFIG.PERFORMANCE.CACHE_TTL.MARKET_LIST);
     return response.data.markets;
   }
   
@@ -430,8 +430,8 @@ export class OddsStreamClient {
       GRAPHQL_QUERIES.GET_MARKET_DETAILS,
       { marketId }
     );
-    
-    this.cacheData(cacheKey, response.data.market, CONWAY_CONFIG.PERFORMANCE.CACHE_TTL.MARKET_DETAILS);
+
+    this.cacheData(cacheKey, response.data.market, LOCAL_CONFIG.PERFORMANCE.CACHE_TTL.MARKET_DETAILS);
     return response.data.market;
   }
   
@@ -646,7 +646,7 @@ export class OddsStreamClient {
       { marketId }
     );
     
-    this.cacheData(cacheKey, response.data.oracleStatus, CONWAY_CONFIG.PERFORMANCE.CACHE_TTL.ORACLE_DATA);
+    this.cacheData(cacheKey, response.data.oracleStatus, LOCAL_CONFIG.PERFORMANCE.CACHE_TTL.ORACLE_DATA);
     return response.data.oracleStatus;
   }
   
@@ -842,8 +842,8 @@ export class OddsStreamClient {
   private async getMarketChainId(marketId: string): Promise<string> {
     // In production, this would query the registry
     // For now, use a mock based on our config
-    const market = CONWAY_CONFIG.APPLICATIONS.EXAMPLE_MARKETS?.find(m => m.id === marketId);
-    
+    const market = LOCAL_CONFIG.APPLICATIONS.EXAMPLE_MARKETS?.find((m: any) => m.id === marketId);
+
     if (!market) {
       // Fallback for dynamic markets
       // Assume chain ID is part of the market metadata or queryable
@@ -862,8 +862,8 @@ export class OddsStreamClient {
   
   private getCachedData(key: string): any | null {
     const cached = this.cache.get(key);
-    
-    if (cached && Date.now() - cached.timestamp < CONWAY_CONFIG.PERFORMANCE.CACHE_TTL.MARKET_LIST) {
+
+    if (cached && Date.now() - cached.timestamp < LOCAL_CONFIG.PERFORMANCE.CACHE_TTL.MARKET_LIST) {
       return cached.data;
     }
     
@@ -900,11 +900,11 @@ export class OddsStreamClient {
     params?: Record<string, any>;
     stakeAmount?: number;
   }): Promise<{ agentId: string; status: string }> {
-    if (!CONWAY_CONFIG.FEATURES.ENABLE_AI_AGENTS) {
+    if (!LOCAL_CONFIG.FEATURES.ENABLE_AI_AGENTS) {
       throw new Error('AI agents feature is disabled');
     }
-    
-    const response = await fetch(`${CONWAY_CONFIG.AI_AGENT.MCP_SERVER_URL}/connect`, {
+
+    const response = await fetch(`${LOCAL_CONFIG.AI_AGENT.MCP_SERVER_URL}/connect`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -928,7 +928,7 @@ export class OddsStreamClient {
    * Get AI agent performance metrics
    */
   async getAgentMetrics(agentId: string): Promise<any> {
-    const response = await fetch(`${CONWAY_CONFIG.AI_AGENT.MCP_SERVER_URL}/metrics/${agentId}`);
+    const response = await fetch(`${LOCAL_CONFIG.AI_AGENT.MCP_SERVER_URL}/metrics/${agentId}`);
     return await response.json();
   }
   
@@ -945,7 +945,7 @@ export class OddsStreamClient {
     timestamp: number;
   }> {
     try {
-      const response = await fetch(CONWAY_CONFIG.PERFORMANCE.HEALTH_CHECK_URL);
+      const response = await fetch(LOCAL_CONFIG.PERFORMANCE.HEALTH_CHECK_URL);
       return await response.json();
     } catch (error) {
       return {
@@ -960,7 +960,7 @@ export class OddsStreamClient {
    * Get performance metrics
    */
   async getPerformanceMetrics(): Promise<any> {
-    const response = await fetch(CONWAY_CONFIG.PERFORMANCE.METRICS_ENDPOINT);
+    const response = await fetch(LOCAL_CONFIG.PERFORMANCE.METRICS_ENDPOINT);
     return await response.json();
   }
 }
@@ -972,7 +972,7 @@ let clientInstance: OddsStreamClient | null = null;
 
 export function getLineraClient(): OddsStreamClient {
   if (!clientInstance) {
-    clientInstance = new OddsStreamClient(CONWAY_CONFIG);
+    clientInstance = new OddsStreamClient(LOCAL_CONFIG);
   }
   return clientInstance;
 }
