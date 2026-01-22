@@ -23,8 +23,8 @@ RUN rustup toolchain install nightly && \
 # Install Linera binaries (now using Nightly)
 RUN git clone --branch testnet_conway https://github.com/linera-io/linera-protocol /tmp/linera-protocol && \
     cd /tmp/linera-protocol && \
-    cargo install --path linera-service --locked --jobs 2 && \
-    cargo install --path linera-storage-service --locked --jobs 2 && \
+    RUSTUP_TOOLCHAIN=nightly cargo install --path linera-service --locked --jobs 1 && \
+    RUSTUP_TOOLCHAIN=nightly cargo install --path linera-storage-service --locked --jobs 1 && \
     cd / && \
     rm -rf /tmp/linera-protocol
 
