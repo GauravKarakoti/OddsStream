@@ -21,7 +21,12 @@ RUN rustup toolchain install nightly && \
 # ------------------------
 
 # Install Linera binaries (now using Nightly)
-RUN cargo install --locked linera-service@0.15.6 linera-storage-service@0.15.6
+RUN git clone --branch testnet_conway https://github.com/linera-io/linera-protocol /tmp/linera-protocol && \
+    cd /tmp/linera-protocol && \
+    cargo install --path linera-service --locked --jobs 2 && \
+    cargo install --path linera-storage-service --locked --jobs 2 && \
+    cd / && \
+    rm -rf /tmp/linera-protocol
 
 # Install Node.js and pnpm/npm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.40.3/install.sh | \
